@@ -17,7 +17,7 @@ using namespace std;
 int SIDE = 12;
 //number of mines
 int MINES = 10; 
-
+bool run = true;
 void printBoard(char board[][MAXSIDE])
 {
     int i, j;
@@ -67,7 +67,7 @@ void setMine(char board[][MAXSIDE]) {
 }
 
 //initializes board with just Xs
-void init(char board[][MAXSIDE])
+void init(char board[][MAXSIDE], char board2[][MAXSIDE])
 {
    
 
@@ -75,23 +75,60 @@ void init(char board[][MAXSIDE])
     {
         for (int j = 0; j < SIDE; j++)
         {
-            board[i][j] = '-';
+            board[i][j] = ' ';
+            board2[i][j] = '-';
+
         }
     }
 
     return;
 }
 
-void checkMoveTrue(int x, int y) {
-    if (x < 0 || y<0 || x>SIDE-1 || y>SIDE-1)
-        printf("invalid move at: %d %d", x, y);
+int countNeighboringMines(char board[][MAXSIDE], int x, int y) {
+    int neighboring = 0;
+    if (x - 1 >= 0) {
+        if (board[x - 1][y] == 'M')
+            neighboring++;
+        if (y - 1 >= 0) {
+            if (board[x-1][y-1] == 'M')
+                neighboring++;
+        }
+        if (y +1 < SIDE)
+        {
+            if (board[x - 1][y+1] == 'M')
+                neighboring++;
+        }
+    
 
-    else
-        printf("valid");
+   }
+    if (x + 1< SIDE) {
+        if (board[x + 1][y] == 'M')
+            neighboring++;
+        if (y - 1 >= 0) {
+            if (board[x + 1][y - 1] == 'M')
+                neighboring++;
+        }
+        if (y + 1 < SIDE)
+        {
+            if (board[x+1][y+1] == 'M')
+                neighboring++;
+        }
+
+
+    }
+    if (y - 1 >= 0) {
+        if (board[x][y - 1] == 'M')
+            neighboring++;
+    }
+    if (y + 1 < SIDE)
+    {
+        if (board[x][y + 1] == 'M')
+            neighboring++;
+    }
+    return neighboring;
 }
 
-
-void makeMove(char board[][MAXSIDE], int x, int y) {
+void makeMove(char board[][MAXSIDE], char board2[][MAXSIDE], int x, int y) {
     if (x < 0 || y<0 || x>SIDE - 1 || y>SIDE - 1) {
         printf("invalid move at: %d %d", x, y);
         return;
@@ -99,10 +136,19 @@ void makeMove(char board[][MAXSIDE], int x, int y) {
 
 
     printf("reveal square at %d , %d", x, y);
-    printf("%c ", board[x][y]);
-    if (board[x][y] == 'M') {
+    board2[x][y] = board[x][y];
+    if (board2[x][y] == 'M') 
+    {
+
         printf(" you lost! ");
+        run = false;
     }
+   int mines =  countNeighboringMines(board, x, y);
+   if (mines > 0) {
+      string s =  to_string(mines);
+      board2[x][y] = s[0];
+   }
+  
     printf("\n");
 
 }
@@ -112,15 +158,20 @@ int main()
 
     printf("test");
     printf("\n");
+//neeed two boards one for playing, one for displaying
     char mineSweep[MAXSIDE][MAXSIDE];
-    init(mineSweep);
+    char displayBoard[MAXSIDE][MAXSIDE];
+    init(mineSweep, displayBoard);
     setMine(mineSweep);
-   printBoard(mineSweep);
+    printBoard(displayBoard);
    int x = 0; 
-   int y = 0;
-   printf("type 2 numbers for your move ");
-   printf("Please enter two integers  ");
-   scanf("%d %d", &x, &y);
-   makeMove(mineSweep, x, y);
 
+   int y = 0;
+   while (run) {
+       printf("type 2 numbers for your move ");
+       printf("Please enter two integers  ");
+       scanf("%d %d", &x, &y);
+       makeMove(mineSweep, displayBoard, x, y);
+       printBoard(displayBoard);
+   }
 }
