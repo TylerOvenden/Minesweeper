@@ -16,7 +16,7 @@ using namespace std;
 //board side length 
 int SIDE = 12;
 //number of mines
-int MINES = 15; 
+int MINES = 10; 
 
 bool run = true;
 void printBoard(char board[][MAXSIDE])
@@ -42,9 +42,7 @@ void printBoard(char board[][MAXSIDE])
 }
 void setMine(char board[][MAXSIDE]) {
      int currentMines = MINES;
-     printf("set mines: %d", currentMines);
-   //  cout << " setMines: ";
-    //cout << currentMines;
+
     srand((unsigned)time(NULL));
 
     while (currentMines > 0) {
@@ -190,7 +188,7 @@ void makeMove(char board[][MAXSIDE], char board2[][MAXSIDE], int x, int y, bool 
 int main()
 {
 
-    printf("test");
+   // printf("test");
     printf("\n");
 //neeed two boards one for playing, one for displaying
     char mineSweep[MAXSIDE][MAXSIDE];
@@ -200,6 +198,7 @@ int main()
    
    int x = 0; 
    int y = 0;
+      printf("\n");
    while (run) {
        printBoard(displayBoard);
        printf("type 2 numbers for your move ");
