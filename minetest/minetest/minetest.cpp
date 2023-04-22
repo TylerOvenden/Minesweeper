@@ -16,7 +16,8 @@ using namespace std;
 //board side length 
 int SIDE = 12;
 //number of mines
-int MINES = 10; 
+int MINES = 15; 
+
 bool run = true;
 void printBoard(char board[][MAXSIDE])
 {
@@ -55,8 +56,8 @@ void setMine(char board[][MAXSIDE]) {
         if (board[randomX][randomY] != 'M')
         {
             
-            printf("placing mine at  %d , %d", randomX, randomY);
-            printf("\n");
+//            printf("placing mine at  %d , %d", randomX, randomY);
+  //          printf("\n");
             //using M to represent a mine
             board[randomX][randomY] = 'M';
             currentMines--;
@@ -66,7 +67,7 @@ void setMine(char board[][MAXSIDE]) {
     }
 }
 
-//initializes board with just Xs
+
 void init(char board[][MAXSIDE], char board2[][MAXSIDE])
 {
    
@@ -84,8 +85,11 @@ void init(char board[][MAXSIDE], char board2[][MAXSIDE])
     return;
 }
 
+//checks all the square's neighbors, all combinations of + & - 1 from 
+//x & y to see if they are mines
 int countNeighboringMines(char board[][MAXSIDE], int x, int y) {
     int neighboring = 0;
+
     if (x - 1 >= 0) {
         if (board[x - 1][y] == 'M')
             neighboring++;
@@ -98,9 +102,8 @@ int countNeighboringMines(char board[][MAXSIDE], int x, int y) {
             if (board[x - 1][y+1] == 'M')
                 neighboring++;
         }
-    
-
    }
+
     if (x + 1< SIDE) {
         if (board[x + 1][y] == 'M')
             neighboring++;
@@ -113,9 +116,8 @@ int countNeighboringMines(char board[][MAXSIDE], int x, int y) {
             if (board[x+1][y+1] == 'M')
                 neighboring++;
         }
-
-
     }
+
     if (y - 1 >= 0) {
         if (board[x][y - 1] == 'M')
             neighboring++;
@@ -128,30 +130,62 @@ int countNeighboringMines(char board[][MAXSIDE], int x, int y) {
     return neighboring;
 }
 
-void makeMove(char board[][MAXSIDE], char board2[][MAXSIDE], int x, int y) {
+
+void makeMove(char board[][MAXSIDE], char board2[][MAXSIDE], int x, int y, bool open) {
     if (x < 0 || y<0 || x>SIDE - 1 || y>SIDE - 1) {
         printf("invalid move at: %d %d", x, y);
         return;
     }
+    if (board2[x][y] != '-')
+        return;
 
 
-    printf("reveal square at %d , %d", x, y);
-    board2[x][y] = board[x][y];
-    if (board2[x][y] == 'M') 
+   // printf("reveal square at %d , %d", x, y);
+    
+    if (board[x][y] == 'M')
     {
-
+        if (!open)
+            return;
+        board2[x][y] = board[x][y];
         printf(" you lost! ");
         run = false;
+        printf("\n");
+        printBoard(board);
     }
-   int mines =  countNeighboringMines(board, x, y);
-   if (mines > 0) {
-      string s =  to_string(mines);
-      board2[x][y] = s[0];
-   }
+
+
+    int mines = countNeighboringMines(board, x, y);
+    board2[x][y] = ' ';
+    
+    if (mines > 0) {
+        
+        string s = to_string(mines);
+        board2[x][y] = s[0];
+        return;
+    }
   
-    printf("\n");
+    //only open adjacent squares if the neighbors aren't mines
+    //boolean use to prevent opening mines in the recursive calls
+    if (x - 1 >= 0)
+        makeMove(board, board2, x-1, y, false);
+    if (x - 1 >= 0 && y-1 >= 0)
+        makeMove(board, board2, x - 1, y-1, false);
+    if (x - 1 >= 0 && y+1 < SIDE)
+        makeMove(board, board2, x - 1, y + 1, false);
+    if (y - 1 >= 0)
+        makeMove(board, board2, x, y - 1, false);
+    if (y + 1 < SIDE)
+        makeMove(board, board2, x, y+1, false);
+    if (x + 1 < SIDE)
+        makeMove(board, board2, x + 1, y, false);
+    if (x + 1 < SIDE && y - 1 >= 0)
+        makeMove(board, board2, x + 1, y - 1, false);
+    if (x + 1 < SIDE && y + 1 < SIDE)
+        makeMove(board, board2, x + 1, y + 1, false);
+
 
 }
+
 
 int main()
 {
@@ -163,15 +197,15 @@ int main()
     char displayBoard[MAXSIDE][MAXSIDE];
     init(mineSweep, displayBoard);
     setMine(mineSweep);
-    printBoard(displayBoard);
+   
    int x = 0; 
-
    int y = 0;
    while (run) {
+       printBoard(displayBoard);
        printf("type 2 numbers for your move ");
        printf("Please enter two integers  ");
        scanf("%d %d", &x, &y);
-       makeMove(mineSweep, displayBoard, x, y);
-       printBoard(displayBoard);
+       makeMove(mineSweep, displayBoard, x, y, true);
+      
    }
 }
